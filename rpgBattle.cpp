@@ -15,6 +15,7 @@
 
 using namespace std;
 
+
 class Monster {
 	public:
 	    // Construtor para inicializar os atributos.
@@ -54,6 +55,11 @@ class Monster {
 		}
 
     	void takeDamage(int damage) {
+			damage -= def_;
+			if (damage < 0) {
+				damage = 0;
+			}
+
     	    currentHp_ -= damage;
     	    if (currentHp_ < 0) {
     	        currentHp_ = 0;
@@ -84,6 +90,7 @@ class Monster {
 	    int crit_;
 };
 
+
 class Hero : public Monster {
 	public:
 		Hero(
@@ -112,6 +119,42 @@ class Hero : public Monster {
 		int getMagic() const { return magic_; }
 		int getLevel() const { return level_; }
 
+		void spendMp(int amount) {
+			currentMp_ -= amount;
+
+    	    if (currentMp_ < 0) {
+    	        currentMp_ = 0;
+    	    }
+		}
+
+		void recoverMp(int amount) {
+    	    currentMp_ += amount;
+    	    if (currentMp_ > maxMp_) {
+    	        currentMp_ = maxMp_;
+    	    }
+    	}
+
+		int secondWind() {
+			int heal = rand() % (10 + level_);
+			return heal;
+		}
+
+		int healingMagic() {
+			int heal = rand() % (7 * (magic_ + level_)) + 1;
+			if (rand() % 100 + 1 <= this->getCrit()) {
+				heal *= 2;
+			}
+			return heal;
+		}
+
+		int destructiveMagic() {
+			int damage = rand() % (7 * (magic_ + level_)) + 1;
+			if (rand() % 100 + 1 <= this->getCrit()) {
+				damage *= 2;
+			}
+			return damage;
+		}
+
 		void increaseMaxMp(int amount) { maxMp_ += amount; }
     	void increaseMagic(int amount) { magic_ += amount; }
 
@@ -122,11 +165,13 @@ class Hero : public Monster {
 		int level_;
 };
 
+
 // Prototipagem das funções.
 int selectCharacter(const vector<Hero>& characters);
 bool confirmCharacter(string name, int hp, int mp, int atk, int magic, int def, int dodge, int crit, int lvl);
 bool combatEncounter(Hero chosenCharacter, Monster chosenMonster);
 Monster chooseRandomMonster(const vector<Monster>& monsters, Hero chosenCharacter);
+
 
 main() {
 	system("chcp 65001");
@@ -151,20 +196,29 @@ main() {
 	// Programa começa selecionando o personagem.
 	chosenCharacter = characters[selectCharacter(characters)];
 
-	bool victorius = false;
+	bool victory;
 
 	// Continua enquanto o jogador não derrotar o Dragão Vermelho!
 	do {
+		victory = false;
 		// Jogador luta contra um monstro aleatório.
 		chosenMonster = chooseRandomMonster(monsters, chosenCharacter);
-		combatEncounter(chosenCharacter, chosenMonster);
+		victory = combatEncounter(chosenCharacter, chosenMonster);
 
 		// Se triunfante, o personagem sobe de nível e evolui um de seus atributos.
+		system("cls");
+		if (victory) {
+			cout << "\n" << "Parabéns! Você derrotou " << chosenMonster.getName();
+			cout << "\n" << "Você subiu de nível!" << "\n";
+			system("pause");
+		}
+		else {
+			cout << "\n" << "Gameover!" << "\n";
+			system("pause");
+		}
 
 		// Se o Dragão Vermelho for derrotado o personagem vence o jogo.
-
 	} while (true);	
-
 }
 
 
@@ -250,7 +304,6 @@ bool confirmCharacter(string name, int hp, int mp, int atk, int magic, int def, 
 // & monsters, indica que o vetor `monsters` é passado por referencia a função.
 // Recebendo o seu endereço da memória.
 Monster chooseRandomMonster(const vector<Monster>& monsters, Hero chosenCharacter) {
-
 	// Chance do dragão aparecer aumenta conforme o nível do jogador.
 	if (rand() % 100 + 1 <= chosenCharacter.getLevel()) {
 		return monsters[monsters.size() - 1];
@@ -258,19 +311,18 @@ Monster chooseRandomMonster(const vector<Monster>& monsters, Hero chosenCharacte
 	
 	// Se a verificação anterior não for sucedida retorne outro monstro aleatório.
     int index = rand() % monsters.size();
-
     return monsters[index];
 }
 
 bool combatEncounter(Hero chosenCharacter, Monster chosenMonster) {
-	int action;
+	int action, result;
 	bool validAction;
 
 	do {
 		system("cls");
 		cout << "\n\t\t" << "Batalha contra " << chosenMonster.getName() << "!";
 
-		cout << "\n\n" << chosenCharacter.getName();
+		cout << "\n\n" << "Lvl " << chosenCharacter.getLevel() << " " << chosenCharacter.getName();
 		cout << "\n" << "HP: " << chosenCharacter.getCurrentHp() << "/" << chosenCharacter.getMaxHp();
 		cout << "\n" << "MP: " << chosenCharacter.getCurrentMp() << "/" << chosenCharacter.getMaxMp();
 
@@ -285,19 +337,61 @@ bool combatEncounter(Hero chosenCharacter, Monster chosenMonster) {
 			cout << "\n" << "[4] - Folego (Recupera um pouco de HP e MP)" << "\n";
 			cin >> action;
 
+			system("cls");
 			switch (action) {
 			case 1:
+				result = chosenCharacter.attack();
+				cout << "\n" << "Você ataca o " << chosenMonster.getName() << " causando " << result << " de dano!";
+				chosenMonster.takeDamage(result);
+				validAction = true;
 				break;
-			
+			case 2:
+				if (chosenCharacter.getCurrentMp() < 7) {
+					cout << "\n" << "Mana insuficiente!" << "\n" << "Escolha outra ação!";
+					break;
+				}
+				result = chosenCharacter.healingMagic();
+				chosenCharacter.spendMp(7);
+				cout << "\n" << "Você se cura, restaurando " << result << " pontos de vida!";
+				chosenCharacter.heal(result);
+				validAction = true;
+				break;
+			case 3:
+				if (chosenCharacter.getCurrentMp() < 12) {
+					cout << "\n" << "Mana insuficiente!" << "\n" << "Escolha outra ação!";
+					break;
+				}
+				result = chosenCharacter.destructiveMagic();
+				chosenCharacter.spendMp(12);
+				cout << "\n" << "Você usa magia de destruição contra o " << chosenMonster.getName() << " causando " << result << " de dano!";
+				chosenMonster.takeDamage(result);
+				validAction = true;
+				break;
 			default:
-				cout << "\n" << "Opção inválida!";
-				cout << "\n" << "Escolha novamente..." << "\n";
-				system("pause");
+				cout << "\n" << "Você recupera seu folego";
+
+				result = chosenCharacter.secondWind();
+				chosenCharacter.heal(result);
+				cout << "\n" << "Resturado " << result << " pontos de vida!";
+
+				result /= 2;
+				chosenCharacter.recoverMp(result);
+				cout << "\n" << "Restaurado " << result << " pontos de mana!";
+				validAction = true;
 				break;
 			}
 		} while (!validAction);
+		cout << "\n";
+		system("pause");
+		system("cls");
 
-	} while (chosenCharacter.getCurrentHp() > 0 || chosenMonster.getCurrentHp() > 0);
+		if (chosenMonster.getCurrentHp() > 0) {
+			result = chosenMonster.attack();
+			chosenCharacter.takeDamage(result);
+			cout << "\n" << "O " << chosenMonster.getName() << " te ataca, causando " << result << " pontos de dano!" << "\n";
+			system("pause");
+		} 
+	} while (chosenCharacter.getCurrentHp() > 0 && chosenMonster.getCurrentHp() > 0);
 
 	if (chosenCharacter.getCurrentHp() <= 0) {
 		return false;
