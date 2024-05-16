@@ -19,18 +19,20 @@ class Monster {
 	public:
 	    // Construtor para inicializar os atributos.
 	    Monster(
-			string name, 
+			string name,
 			int maxHp, 
 			int currentHp, 
 			int atk, 
-			int def, 
+			int def,
+			int dodge, 
 			int crit
-			) : 
-			name_(name), 
+		) : 
+			name_(name),
 			maxHp_(maxHp), 
 			currentHp_(currentHp), 
 			atk_(atk), 
-			def_(def), 
+			def_(def),
+			dodge_(dodge), 
 			crit_(crit) 
 		{}
 
@@ -40,107 +42,166 @@ class Monster {
 	    int getCurrentHp() const { return currentHp_; }
 	    int getAtk() const { return atk_; }
 	    int getDef() const { return def_; }
+		int getDodge() const { return dodge_; }
 	    int getCrit() const { return crit_; }
 
+		// Ataque básico.
+		virtual int attack() {
+			int damage = rand() % (3 * atk_) + 1;
+			if (rand() % 100 + 1 <= crit_) {
+				damage *= 2;
+			}
+			return damage;
+		}
+
 	private:
-	    // Atributos
+	    // Atributos.
 	    string name_;
 	    int maxHp_;
 	    int currentHp_;
 	    int atk_;
 	    int def_;
+		int dodge_;
 	    int crit_;
 };
 
+class Hero : public Monster {
+	public:
+		Hero(
+			string name,
+			int maxHp, 
+			int currentHp,
+			int maxMp,
+			int currentMp, 
+			int atk,
+			int magic, 
+			int def,
+			int dodge, 
+			int crit,
+			int level
+		) : 
+			Monster(name, maxHp, currentHp, atk, def, dodge, crit),
+			maxMp_(maxMp),
+			currentMp_(currentMp),
+			magic_(magic),
+			level_(level)
+		{}
+
+		int getMaxMp() const { return maxMp_; }
+		int getCurrentMp() const { return currentMp_; }
+		int getMagic() const { return magic_; }
+		int getLevel() const { return level_; }
+
+	private:
+		int maxMp_;
+		int currentMp_;
+		int magic_;
+		int level_;
+};
+
 // Prototipagem das funções.
-void createLayout();
+int chooseCharacter(string nome, int vida, int ataque, int defesa, int esquiva, int critico, int nivel);
 Monster chooseRandomMonster(const vector<Monster>& monsters);
 
 main() {
 	system("chcp 65001");
 	srand(time(NULL));
+
+	int action, subAction;
+	bool validAction;
 	
 	vector<Monster> monsters = {
-		Monster("Hero", 40, 40, 5, 0, 5),
-		Monster("Goblin", 27, 27, 3, 0, 1),
-		Monster("Orc", 65, 65, 9, 1, 2),
+		Monster("Goblin", 27, 27, 3, 0, 7, 1),
+		Monster("Orc", 65, 65, 9, 1, 1, 3)
 	};
-	// int action, actionResult;
 
-	Monster randomMonster = chooseRandomMonster(monsters);
-    cout << "\n" << "O monstro escolhido foi: " << randomMonster.getName() << "\n";
-	// do {
-	// 	system("cls");
-		
-	// 	gerarLayout();
-	// 	cin >> action;
-		
-	// 	switch (action) {
-	// 		case 1:
-	// 			actionResult = heroiAtacar();
-	// 			cout << "Você ataca causando: " << actionResult << " de dano!";
-	// 			bossHp -= actionResult;
-	// 			cout << "\n\n";
-	// 			system("pause");
-				
-	// 			actionResult = monstroAtacar(bossAtk);
-	// 			cout << "O monstro te ataca causando: " << actionResult << " de dano!";
-	// 			heroHp -= actionResult;
-	// 			cout << "\n\n";
-	// 			system("pause");
-	// 			break;
-	// 	}
-	// } while (heroHp > 0 || bossHp > 0);
+	do {
+		system("cls");
+		cout << "\n\t\t" << "Bem-vindo ao RPG Battle!" << "\n";
+		cout << "\n" << "Escolha o seu personagem para começar a jornada!";
+		cout << "\n" << "[1] - O Herói do Reino";
+		cout << "\n" << "[2] - O Aventureiro";
+		cout << "\n" << "[3] - O Plebeu";
+		cin >> action;
+
+		switch (action) {
+		case 1:
+			subAction = chooseCharacter("Herói do Reino", 420, 200, 15, 15, 5, 10, 15, 15);
+			validAction = true;
+			break;
+		case 2:
+			subAction = chooseCharacter("Aventureiro", 120, 20, 7, 5, 2, 10, 5, 4);
+			validAction = true;
+			break;
+		case 3:
+			subAction = chooseCharacter("Plebeu", 40, 10, 3, 2, 0, 5, 3, 1);
+			validAction = true;
+			break;
+		default:
+			validAction = false;
+			cout << "\n" << "Opção inválida!";
+			cout << "\n" << "Escolha novamente..." << "\n";
+			system("pause");
+			break;
+		}
+	} while (!validAction || subAction != 1);
+
+	// Monster randomMonster = chooseRandomMonster(monsters);
 }
 
-//void gerarLayout() {
-//	cout << "\n" << "Sua HP: " << heroHp << " / " << heroMaxHp;
-//	cout << "\n\n\t" << "-----Dragão: " << bossHp << "/ 650-----" << "\n\n";
-//	
-//	cout << "                             / \\  //\\" << "\n";
-//    cout << "                |\\___/|      /   \\//  \\\\" << "\n";
-//    cout << "                /0  0  \\__  /    //  | \\ \\" << "\n";
-//    cout << "               /     /  \\/_/    //   |  \\  \\" << "\n";
-//    cout << "               @_^_@'/   \\/_   //    |   \\   \\" << "\n";
-//    cout << "               //_^_/     \\/_ //     |    \\    \\" << "\n";
-//    cout << "            ( //) |        \\///      |     \\     \\" << "\n";
-//    cout << "          ( / /) _|_ /   )  //       |      \\     _\\" << "\n";
-//    cout << "        ( // /) '/,_ _ _/  ( ; -.    |    _ _\\.-~        .-~~~^-. " << "\n";
-//    cout << "      (( / / )) ,-{        _      `-.|.-~-.           .~         `. " << "\n";
-//    cout << "     (( // / ))  '/\\      /                 ~-. _ .-~      .-~^-.  \\" << "\n";
-//    cout << "     (( /// ))      `.   {            }                   /      \\  \\" << "\n";
-//    cout << "      (( / ))     .----~-.\        \\-'                 .~         \\  `. \\^-." << "\n";
-//    cout << "                 ///.----..>        \\             _ -~             `.  ^-`  ^-_ " << "\n";
-//    cout << "                   ///-._ _ _ _ _ _ _}^ - - - - ~                     ~-- ,.-~ " << "\n";
-//    cout << "                                                                      /.-~ " << "\n";
-//	
-//	cout << "\n" << "Chegou o seu turno, o que você faz?";
-//	cout << "\n" << "[1] - atacar";
-//	cout << "\n" << "[2] - curar-se";
-//	cout << "\n" << "[3] - magia selvagem";
-//}
-//
-//int heroiAtacar() {
-//	int damage;
-//	
-//	damage = rand() % (10 * heroAtk) + 1;
-//	
-//	return damage;
-//}
-//
-//int monstroAtacar(int monsterAtk) {
-//	int damage;
-//	
-//	damage = rand() % (3 * monsterAtk) + 1;
-//	
-//	return damage;
-//}
+// Função para escolher o personagem.
+int chooseCharacter(string name, int hp, int mp, int atk, int magic, int def, int dodge, int crit, int lvl) {
+	int action;
+	bool validAction;
+
+	do {
+		system("cls");
+		cout << "\n" << "Você escolheu o " << name << "!";
+		cout << "\n" << "Atributos";
+		cout << "\n" << "Vida: " << hp;
+		cout << "\n" << "Mana: " << mp;
+		cout << "\n" << "Ataque: " << atk;
+		cout << "\n" << "Magia: " << magic;
+		cout << "\n" << "Defesa: " << def;
+		cout << "\n" << "Esquiva: " << dodge << "%";
+		cout << "\n" << "Crítico: " << crit << "%";
+		cout << "\n" << "Nível: " << lvl;
+
+		cout << "\n\n" << "Deseja realmente escolher este personagem?";
+		cout << "\n" << "[1] - Sim";
+		cout << "\n" << "[2] - Não";
+		cin >> action;
+
+		if (action == 1) {
+			validAction = true;
+			
+		} 
+		else if (action == 2) {
+			validAction = true;
+		}
+		else
+		{
+			validAction = false;
+			cout << "\n" << "Opção inválida!";
+			cout << "\n" << "Escolha novamente..." << "\n";
+			system("pause");
+		}
+	} while (!validAction);
+
+	return action;
+}
 
 
-// & monsters, indica que o vetor `monsters`é passado por referencia a função.
+// & monsters, indica que o vetor `monsters` é passado por referencia a função.
 // Recebendo o seu endereço da memória.
 Monster chooseRandomMonster(const vector<Monster>& monsters) {
 	// Gera um índice aleatório diferente de 0.
-    int index = rand() % monsters.size() + 1; 
+    int index = rand() % monsters.size() + 1;
+
+	// Se o índice for maior que o tamanho do vetor, decrementa, retornando o último monstro.
+	if (index > monsters.size()) {
+		index--;
+	}
+
     return monsters[index];
 }
