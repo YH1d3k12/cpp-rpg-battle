@@ -6,7 +6,10 @@
 	3° - O jogador vence o jogo se derrotar o dragão.
 	4° - As chances do dragão vir aumentam conforme o nível.
 */
+
+// Bibliotecas.
 #include <iostream>
+#include <vector>
 #include <string>
 #include <time.h>
 
@@ -15,9 +18,22 @@ using namespace std;
 class Monster {
 	public:
 	    // Construtor para inicializar os atributos.
-	    Monster(string name, int maxHp, int currentHp, int atk, int def, int crit)
-	        : name_(name), maxHp_(maxHp), currentHp_(currentHp), atk_(atk), def_(def), crit_(crit) {}
-	
+	    Monster(
+			string name, 
+			int maxHp, 
+			int currentHp, 
+			int atk, 
+			int def, 
+			int crit
+			) : 
+			name_(name), 
+			maxHp_(maxHp), 
+			currentHp_(currentHp), 
+			atk_(atk), 
+			def_(def), 
+			crit_(crit) 
+		{}
+
 	    // Métodos para acessar os atributos.
 	    string getName() const { return name_; }
 	    int getMaxHp() const { return maxHp_; }
@@ -25,7 +41,7 @@ class Monster {
 	    int getAtk() const { return atk_; }
 	    int getDef() const { return def_; }
 	    int getCrit() const { return crit_; }
-	
+
 	private:
 	    // Atributos
 	    string name_;
@@ -37,38 +53,44 @@ class Monster {
 };
 
 // Prototipagem das funções.
-void gerarLayout();
-int heroiAtacar();
-int monstroAtacar(int monsterAtk);
+void createLayout();
+Monster chooseRandomMonster(const vector<Monster>& monsters);
 
 main() {
 	system("chcp 65001");
 	srand(time(NULL));
 	
-	int action, actionResult;
-	
-	do {
-		system("cls");
+	vector<Monster> monsters = {
+		Monster("Hero", 40, 40, 5, 0, 5),
+		Monster("Goblin", 27, 27, 3, 0, 1),
+		Monster("Orc", 65, 65, 9, 1, 2),
+	};
+	// int action, actionResult;
+
+	Monster randomMonster = chooseRandomMonster(monsters);
+    cout << "\n" << "O monstro escolhido foi: " << randomMonster.getName() << "\n";
+	// do {
+	// 	system("cls");
 		
-		gerarLayout();
-		cin >> action;
+	// 	gerarLayout();
+	// 	cin >> action;
 		
-		switch (action) {
-			case 1:
-				actionResult = heroiAtacar();
-				cout << "Você ataca causando: " << actionResult << " de dano!";
-				bossHp -= actionResult;
-				cout << "\n\n";
-				system("pause");
+	// 	switch (action) {
+	// 		case 1:
+	// 			actionResult = heroiAtacar();
+	// 			cout << "Você ataca causando: " << actionResult << " de dano!";
+	// 			bossHp -= actionResult;
+	// 			cout << "\n\n";
+	// 			system("pause");
 				
-				actionResult = monstroAtacar(bossAtk);
-				cout << "O monstro te ataca causando: " << actionResult << " de dano!";
-				heroHp -= actionResult;
-				cout << "\n\n";
-				system("pause");
-				break;
-		}
-	} while (heroHp > 0 || bossHp > 0);
+	// 			actionResult = monstroAtacar(bossAtk);
+	// 			cout << "O monstro te ataca causando: " << actionResult << " de dano!";
+	// 			heroHp -= actionResult;
+	// 			cout << "\n\n";
+	// 			system("pause");
+	// 			break;
+	// 	}
+	// } while (heroHp > 0 || bossHp > 0);
 }
 
 //void gerarLayout() {
@@ -113,3 +135,12 @@ main() {
 //	
 //	return damage;
 //}
+
+
+// & monsters, indica que o vetor `monsters`é passado por referencia a função.
+// Recebendo o seu endereço da memória.
+Monster chooseRandomMonster(const vector<Monster>& monsters) {
+	// Gera um índice aleatório diferente de 0.
+    int index = rand() % monsters.size() + 1; 
+    return monsters[index];
+}
