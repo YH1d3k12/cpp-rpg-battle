@@ -168,8 +168,9 @@ class Hero : public Monster {
 
 // Prototipagem das funções.
 int selectCharacter(const vector<Hero>& characters);
-bool confirmCharacter(string name, int hp, int mp, int atk, int magic, int def, int dodge, int crit, int lvl);
+void showCharacter(string name, int hp, int mp, int atk, int magic, int def, int dodge, int crit, int lvl);
 bool combatEncounter(Hero chosenCharacter, Monster chosenMonster);
+void levelUp(Hero chosenCharacter);
 Monster chooseRandomMonster(const vector<Monster>& monsters, Hero chosenCharacter);
 
 
@@ -223,53 +224,70 @@ main() {
 
 
 int selectCharacter(const vector<Hero>& characters) {
-	int action;
+	int action, confirmAction, selectedCharacter;
+	bool confirmed = false;
 
 	do {
 		system("cls");
 		cout << "\n\t\t" << "Bem-vindo ao RPG Battle!" << "\n";
 		cout << "\n" << "Escolha o seu personagem para começar a jornada!";
 
+		// Dinâmicamente lista os personagens disponiveis.
 		for (int i = 0; i < characters.size(); i++) {
 			cout << "\n" << "[" << i + 1 << "] - " << characters[i].getName();
 		}
 		cout << "\n";
 		cin >> action;
 
+		// Se a ação estiver no alcance, vai para a etapa de confirmação.
 		if (action >= 1 && action <= characters.size()) {
-			int selectedCharacter = action - 1;
-			bool confirmed = false;
+			selectedCharacter = action - 1;
+			
+			// Demonstra os status do personagem para confirma sua escolha.
+			do {
+				system("cls");
+				cout << "\n\t\t" << "Você escolheu o " << characters[selectedCharacter].getName() << "!";
+				showCharacter(
+					characters[selectedCharacter].getName(),
+					characters[selectedCharacter].getMaxHp(),
+					characters[selectedCharacter].getMaxMp(),
+					characters[selectedCharacter].getAtk(),
+					characters[selectedCharacter].getMagic(),
+					characters[selectedCharacter].getDef(),
+					characters[selectedCharacter].getDodge(),
+					characters[selectedCharacter].getCrit(),
+					characters[selectedCharacter].getLevel()
+				);
 
-			confirmed = confirmCharacter(
-                characters[selectedCharacter].getName(),
-                characters[selectedCharacter].getMaxHp(),
-                characters[selectedCharacter].getMaxMp(),
-                characters[selectedCharacter].getAtk(),
-                characters[selectedCharacter].getMagic(),
-                characters[selectedCharacter].getDef(),
-                characters[selectedCharacter].getDodge(),
-                characters[selectedCharacter].getCrit(),
-                characters[selectedCharacter].getLevel()
-            );
+				cout << "\n\n" << "Deseja realmente escolher este personagem?";
+				cout << "\n" << "[1] - Sim";
+				cout << "\n" << "[2] - Não" << "\n";
+				cin >> confirmAction;
 
-			if (confirmed) {
-				return selectedCharacter;
-			}
+				// A pergunta continua até o usuário fornecer uma ação válida.
+				if (confirmAction == 1) {
+					confirmed = true;
+				} 
+				else if (confirmAction == 2) {
+					confirmed = false;
+				}
+				else {
+					cout << "\n" << "Opção inválida!" << "\n";
+					system("pause");
+				}
+			} while (confirmAction != 1 && confirmAction != 2);
 		} 
 		else {
 			cout << "\n" << "Opção inválida!";
 			cout << "\n" << "Escolha novamente..." << "\n";
 			system("pause");
 		}
-	} while (true);
+	} while (!confirmed);
+
+	return selectedCharacter;
 }
 
-bool confirmCharacter(string name, int hp, int mp, int atk, int magic, int def, int dodge, int crit, int lvl) {
-	int action;
-
-	do {
-		system("cls");
-		cout << "\n\t\t" << "Você escolheu o " << name << "!";
+void showCharacter(string name, int hp, int mp, int atk, int magic, int def, int dodge, int crit, int lvl) {
 		cout << "\n\n\n" << "Atributos";
 		cout << "\n" << "Vida: " << hp;
 		cout << "\n" << "Mana: " << mp;
@@ -279,26 +297,6 @@ bool confirmCharacter(string name, int hp, int mp, int atk, int magic, int def, 
 		cout << "\n" << "Esquiva: " << dodge << "%";
 		cout << "\n" << "Crítico: " << crit << "%";
 		cout << "\n" << "Nível: " << lvl;
-
-		cout << "\n\n" << "Deseja realmente escolher este personagem?";
-		cout << "\n" << "[1] - Sim";
-		cout << "\n" << "[2] - Não" << "\n";
-		cin >> action;
-
-		if (action == 1) {
-			return true;
-		} 
-		else if (action == 2) {
-			return false;
-		}
-		else
-		{
-			cout << "\n" << "Opção inválida!" << "\n";
-			system("pause");
-		}
-	} while (action != 1 || action != 2);
-
-	return false;
 }
 
 // & monsters, indica que o vetor `monsters` é passado por referencia a função.
@@ -397,4 +395,82 @@ bool combatEncounter(Hero chosenCharacter, Monster chosenMonster) {
 		return false;
 	}
 	return true;
+}
+
+void levelUp(Hero chosenCharacter) {
+	int action, result;
+	bool validAction = false;
+
+	do {
+		system("cls");
+		// Demonstra os status do personagem.
+		cout << "\n\t\t" << "Lvl " << chosenCharacter.getLevel() << " " << chosenCharacter.getName();
+		cout << "\n\n" << "Seus atributos atuais";
+		showCharacter(
+			chosenCharacter.getName(),
+			chosenCharacter.getMaxHp(),
+			chosenCharacter.getMaxMp(),
+			chosenCharacter.getAtk(),
+			chosenCharacter.getMagic(),
+			chosenCharacter.getDef(),
+			chosenCharacter.getDodge(),
+			chosenCharacter.getCrit(),
+			chosenCharacter.getLevel()
+		);
+
+		cout << "\n" << "[1] - Aumentar HP";
+		cout << "\n" << "[2] - Aumentar MP";
+		cout << "\n" << "[3] - Aumentar Ataque";
+		cout << "\n" << "[4] - Aumentar Magia";
+		cout << "\n" << "[5] - Aumentar Defesa";
+		cout << "\n" << "[6] - Aumentar Esquiva";
+		cout << "\n" << "[7] - Aumentar Critico";
+		cin >> action;
+
+		switch (action)
+		{
+		case 1:
+			result = chosenCharacter.getMaxHp() / 5;
+			chosenCharacter.increaseMaxHp(result);
+			chosenCharacter.heal(result);
+			cout << "\n" << "Sua vida máxima aumentou em " << result << "\n";
+			break;
+		case 2:
+			result = chosenCharacter.getMaxMp() / 3;
+			chosenCharacter.increaseMaxMp(result);
+			chosenCharacter.recoverMp(result);
+			cout << "\n" << "Sua mana máxima aumentou em " << result << "\n";
+			break;
+		case 3:
+			result = (chosenCharacter.getAtk() / 9) + 1;
+			chosenCharacter.increaseAtk(result);
+			cout << "\n" << "Seu ataque aumentou em " << result << "\n";
+			break;
+		case 4:
+			result = (chosenCharacter.getMagic() / 9) + 1;
+			chosenCharacter.increaseMagic(result);
+			cout << "\n" << "Sua magia aumentou em " << result << "\n";
+			break;
+		case 5:
+			result = (chosenCharacter.getDef() / 9) + 1;
+			chosenCharacter.increaseDef(result);
+			cout << "\n" << "Sua defesa aumentou em " << result << "\n";
+			break;
+		case 6:
+			result = (chosenCharacter.getDodge() / 9) + 1;
+			chosenCharacter.increaseDodge(result);
+			cout << "\n" << "Sua esquiva aumentou em " << result << "\n";
+			break;
+		case 7:
+			result = (chosenCharacter.getCrit() / 9) + 1;
+			chosenCharacter.increaseCrit(result);
+			cout << "\n" << "Sua chance de acerto crítico aumentou em " << result << "\n";
+			break;
+		default:
+			break;
+		}
+	} while (!validAction);
+
+
+	cout << "\n\n" << "Qual atributo deseja aumentar?";
 }
