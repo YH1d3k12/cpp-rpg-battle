@@ -47,7 +47,7 @@ class Monster {
 	    int getCrit() const { return crit_; }
 
 		virtual int attack() {
-			int damage = rand() % (3 * atk_) + 1;
+			int damage = rand() % (5 * atk_) + atk_;
 			if (rand() % 100 + 1 <= crit_) {
 				damage *= 2;
 			}
@@ -55,7 +55,7 @@ class Monster {
 		}
 
     	void takeDamage(int damage) {
-			damage -= def_ * 2;
+			damage -= def_ * 3;
 			if (damage < 0) {
 				damage = 0;
 			}
@@ -136,12 +136,12 @@ class Hero : public Monster {
     	}
 
 		int secondWind() {
-			int heal = rand() % (10 + level_);
+			int heal = rand() % (10 + level_) + level_;
 			return heal;
 		}
 
 		int healingMagic() {
-			int heal = rand() % (7 * (magic_ + level_)) + 1;
+			int heal = rand() % (15 * (magic_ + level_)) + magic_ + level_;
 			if (rand() % 100 + 1 <= this->getCrit()) {
 				heal *= 2;
 			}
@@ -149,7 +149,7 @@ class Hero : public Monster {
 		}
 
 		int destructiveMagic() {
-			int damage = rand() % (7 * (magic_ + level_)) + 1;
+			int damage = rand() % (12 * (magic_ + level_)) + magic_ + level_;
 			if (rand() % 100 + 1 <= this->getCrit()) {
 				damage *= 2;
 			}
@@ -186,20 +186,45 @@ main() {
 		// Fácil.
         Hero("Herói do Reino", 420, 420, 200, 200, 25, 25, 10, 10, 15, 15),
 		// Médio.
-        Hero("Aventureiro", 120, 120, 20, 20, 7, 5, 2, 10, 5, 4),
+        Hero("Guerreiro", 145, 145, 20, 20, 10, 3, 4, 15, 5, 3),
+		Hero("Mago", 82, 82, 60, 60, 5, 15, 1, 10, 5, 3),
+		Hero("Ladino", 92, 92, 12, 12, 12, 1, 0, 30, 20, 3),
 		// Difícil.
-        Hero("Plebeu", 40, 40, 10, 10, 3, 2, 0, 5, 3, 1)
+        Hero("Plebeu", 65, 65, 15, 15, 5, 3, 1, 5, 3, 1)
     };
 	Hero chosenCharacter = characters[0];
 
-	// Lista de monstros.
+	/*
+		Lista de monstros.
+		25% de chance de aparecer goblin.
+		10% de chance de aparecer ogro.
+		20% de chance de aparecer esqueleto.
+		15% de chance de aparecer orc.
+		10% de chance de aparecer troll.
+		15% de chance de aparecer lobo.
+		5% de chance de aparecer dragão vermelho.
+	*/ 
+
 	vector<Monster> monsters = {
 		Monster("Goblin", 27, 27, 3, 0, 7, 3),
+		Monster("Lobo", 40, 40, 5, 0, 15, 3),
 		Monster("Ogro", 240, 240, 15, 2, 0, 3),
 		Monster("Esqueleto", 21, 21, 9, 1, 2, 5),
+		Monster("Goblin", 27, 27, 3, 0, 7, 3),
 		Monster("Orc", 65, 65, 8, 3, 5, 5),
+		Monster("Goblin", 27, 27, 3, 0, 7, 3),
+		Monster("Esqueleto", 21, 21, 9, 1, 2, 5),
 		Monster("Troll", 165, 165, 9, 5, 0, 3),
 		Monster("Lobo", 40, 40, 5, 0, 15, 3),
+		Monster("Orc", 65, 65, 8, 3, 5, 5),
+		Monster("Goblin", 27, 27, 3, 0, 7, 3),
+		Monster("Esqueleto", 21, 21, 9, 1, 2, 5),
+		Monster("Ogro", 240, 240, 15, 2, 0, 3),
+		Monster("Lobo", 40, 40, 5, 0, 15, 3),
+		Monster("Esqueleto", 21, 21, 9, 1, 2, 5),
+		Monster("Troll", 165, 165, 9, 5, 0, 3),
+		Monster("Orc", 65, 65, 8, 3, 5, 5),
+		Monster("Goblin", 27, 27, 3, 0, 7, 3),
 		Monster("Dragão Vermelho", 650, 650, 20, 10, 5, 5)
 	};
 	Monster chosenMonster = monsters[0];
@@ -207,31 +232,44 @@ main() {
 	// Programa começa selecionando o personagem.
 	chosenCharacter = characters[selectCharacter(characters)];
 
-	bool victory;
-
 	// Continua enquanto o jogador não derrotar o Dragão Vermelho!
+	bool victory;
 	do {
 		victory = false;
 		// Jogador luta contra um monstro aleatório.
 		chosenMonster = chooseRandomMonster(monsters, chosenCharacter);
 		victory = combatEncounter(chosenCharacter, chosenMonster);
 
-		// Se triunfante, o personagem sobe de nível e evolui um de seus atributos.
 		system("cls");
-		if (victory) {
+		// Se o Dragão Vermelho for derrotado o jogador vence o jogo.
+		if (victory && chosenMonster.getName() == "Dragão Vermelho") {
+			cout << "\n" << "Parabéns! Você derrotou o Dragão Vermelho!";
+			cout << "\n" << "Você venceu o jogo!";
+			cout << "\n\n" << "Seus atributos finais";
+			showCharacter(
+				chosenCharacter.getName(),
+				chosenCharacter.getMaxHp(),
+				chosenCharacter.getMaxMp(),
+				chosenCharacter.getAtk(),
+				chosenCharacter.getMagic(),
+				chosenCharacter.getDef(),
+				chosenCharacter.getDodge(),
+				chosenCharacter.getCrit(),
+				chosenCharacter.getLevel()
+			);
+			cout << "\n";
+			system("pause");
+			break;
+		}
+		else if (victory) {
 			cout << "\n" << "Parabéns! Você derrotou " << chosenMonster.getName();
 			cout << "\n" << "Você subiu de nível!" << "\n";
 			system("pause");
 			chosenCharacter = levelUp(chosenCharacter);
 		}
 		else {
+			cout << "\n" << "Você foi derrotado por " << chosenMonster.getName() << "!";
 			cout << "\n" << "Gameover!" << "\n";
-			system("pause");
-		}
-
-		// Se o Dragão Vermelho for derrotado o personagem vence o jogo.
-		if (chosenMonster.getName() == "Dragão Vermelho") {
-			cout << "\n" << "Parabéns! Você derrotou o Dragão!" << "\n";
 			system("pause");
 			break;
 		}
@@ -333,18 +371,20 @@ bool combatEncounter(Hero chosenCharacter, Monster chosenMonster) {
 	bool validAction;
 
 	do {
-		system("cls");
-		cout << "\n\t\t" << "Batalha contra " << chosenMonster.getName() << "!";
-
-		cout << "\n\n" << "Lvl " << chosenCharacter.getLevel() << " " << chosenCharacter.getName();
-		cout << "\n" << "HP: " << chosenCharacter.getCurrentHp() << "/" << chosenCharacter.getMaxHp();
-		cout << "\n" << "MP: " << chosenCharacter.getCurrentMp() << "/" << chosenCharacter.getMaxMp();
-
-		cout << "\n\n\n\t\t" << chosenMonster.getName();
-		cout << "\n" << "Vida: " << chosenMonster.getCurrentHp() << "/" << chosenMonster.getMaxHp();
 		do {
+			system("cls");
+			cout << "\n\t\t" << "Batalha contra " << chosenMonster.getName() << "!";
+
+			cout << "\n\n" << "Lvl " << chosenCharacter.getLevel() << " " << chosenCharacter.getName();
+			cout << "\n" << "HP: " << chosenCharacter.getCurrentHp() << "/" << chosenCharacter.getMaxHp();
+			cout << "\n" << "MP: " << chosenCharacter.getCurrentMp() << "/" << chosenCharacter.getMaxMp();
+
+			cout << "\n\n\n\t\t" << chosenMonster.getName();
+			cout << "\n" << "Vida: " << chosenMonster.getCurrentHp() << "/" << chosenMonster.getMaxHp();
+
 			validAction = false;
-			cout << "\n" << "Escolha a ação desejada:";
+			cout << "\n\n\n" << "--------------------------------";
+			cout << "\n" << "Sua vez de agir!";
 			cout << "\n" << "[1] - Atacar";
 			cout << "\n" << "[2] - Cura (7mp)";
 			cout << "\n" << "[3] - Magia Destrutiva (12mp)";
@@ -355,8 +395,13 @@ bool combatEncounter(Hero chosenCharacter, Monster chosenMonster) {
 			switch (action) {
 			case 1:
 				result = chosenCharacter.attack();
-				cout << "\n" << "Você ataca o " << chosenMonster.getName() << " causando " << result << " de dano!";
-				chosenMonster.takeDamage(result);
+				if (rand() % 100 + 1 <= chosenMonster.getDodge()) {
+					cout << "\n" << chosenMonster.getName() << " esquivou do seu ataque!" << "\n";
+				}
+				else {
+					cout << "\n" << "Você ataca o " << chosenMonster.getName() << " causando " << result << " de dano!";
+					chosenMonster.takeDamage(result);
+				}
 				validAction = true;
 				break;
 			case 2:
@@ -377,8 +422,13 @@ bool combatEncounter(Hero chosenCharacter, Monster chosenMonster) {
 				}
 				result = chosenCharacter.destructiveMagic();
 				chosenCharacter.spendMp(12);
-				cout << "\n" << "Você usa magia de destruição contra o " << chosenMonster.getName() << " causando " << result << " de dano!";
-				chosenMonster.takeDamage(result);
+				if (rand() % 100 + 1 <= chosenMonster.getDodge()) {
+					cout << "\n" << chosenMonster.getName() << " esquivou do seu ataque!" << "\n";
+				}
+				else {
+					cout << "\n" << "Você usa magia de destruição contra o " << chosenMonster.getName() << " causando " << result << " de dano!";
+					chosenMonster.takeDamage(result);
+				}
 				validAction = true;
 				break;
 			default:
@@ -395,16 +445,24 @@ bool combatEncounter(Hero chosenCharacter, Monster chosenMonster) {
 				break;
 			}
 		} while (!validAction);
+
 		cout << "\n";
 		system("pause");
 		system("cls");
 
 		if (chosenMonster.getCurrentHp() > 0) {
 			result = chosenMonster.attack();
-			chosenCharacter.takeDamage(result);
-			cout << "\n" << "O " << chosenMonster.getName() << " te ataca, causando " << result << " pontos de dano!" << "\n";
+			
+			if (rand() % 100 + 1 <= chosenCharacter.getDodge()) {
+				cout << "\n" << "Você esquivou do ataque do " << chosenMonster.getName() << "!" << "\n";
+			} 
+			else {
+				chosenCharacter.takeDamage(result);
+				cout << "\n" << "O " << chosenMonster.getName() << " te ataca, causando " << result << " pontos de dano!" << "\n";
+			}
 			system("pause");
 		} 
+
 	} while (chosenCharacter.getCurrentHp() > 0 && chosenMonster.getCurrentHp() > 0);
 
 	if (chosenCharacter.getCurrentHp() <= 0) {
@@ -441,59 +499,59 @@ Hero levelUp(Hero chosenCharacter) {
 		cout << "\n" << "[4] - Aumentar Magia";
 		cout << "\n" << "[5] - Aumentar Defesa";
 		cout << "\n" << "[6] - Aumentar Esquiva";
-		cout << "\n" << "[7] - Aumentar Critico";
+		cout << "\n" << "[7] - Aumentar Critico" << "\n";
 		cin >> action;
 
 		switch (action) {
-		case 1:
-			result = chosenCharacter.getMaxHp() / 5;
-			chosenCharacter.increaseMaxHp(result);
-			chosenCharacter.heal(result);
-			cout << "\n" << "Sua vida máxima aumentou em " << result << "\n";
-			validAction = true;
-			break;
-		case 2:
-			result = chosenCharacter.getMaxMp() / 3;
-			chosenCharacter.increaseMaxMp(result);
-			chosenCharacter.recoverMp(result);
-			cout << "\n" << "Sua mana máxima aumentou em " << result << "\n";
-			validAction = true;
-			break;
-		case 3:
-			result = (chosenCharacter.getAtk() / 9) + 1;
-			chosenCharacter.increaseAtk(result);
-			cout << "\n" << "Seu ataque aumentou em " << result << "\n";
-			validAction = true;
-			break;
-		case 4:
-			result = (chosenCharacter.getMagic() / 9) + 1;
-			chosenCharacter.increaseMagic(result);
-			cout << "\n" << "Sua magia aumentou em " << result << "\n";
-			validAction = true;
-			break;
-		case 5:
-			result = (chosenCharacter.getDef() / 9) + 1;
-			chosenCharacter.increaseDef(result);
-			cout << "\n" << "Sua defesa aumentou em " << result << "\n";
-			validAction = true;
-			break;
-		case 6:
-			result = (chosenCharacter.getDodge() / 9) + 1;
-			chosenCharacter.increaseDodge(result);
-			cout << "\n" << "Sua esquiva aumentou em " << result << "\n";
-			validAction = true;
-			break;
-		case 7:
-			result = (chosenCharacter.getCrit() / 9) + 1;
-			chosenCharacter.increaseCrit(result);
-			cout << "\n" << "Sua chance de acerto crítico aumentou em " << result << "\n";
-			validAction = true;
-			break;
-		default:
-			cout << "\n" << "Opção inválida!";
-			cout << "\n" << "Escolha novamente..." << "\n";
-			system("pause");
-			break;
+			case 1:
+				result = (chosenCharacter.getMaxHp() / 5) + 21;
+				chosenCharacter.increaseMaxHp(result);
+				chosenCharacter.heal(result);
+				cout << "\n" << "Sua vida máxima aumentou em " << result << "\n";
+				validAction = true;
+				break;
+			case 2:
+				result = (chosenCharacter.getMaxMp() / 3) + 7;
+				chosenCharacter.increaseMaxMp(result);
+				chosenCharacter.recoverMp(result);
+				cout << "\n" << "Sua mana máxima aumentou em " << result << "\n";
+				validAction = true;
+				break;
+			case 3:
+				result = (chosenCharacter.getAtk() / 9) + 3;
+				chosenCharacter.increaseAtk(result);
+				cout << "\n" << "Seu ataque aumentou em " << result << "\n";
+				validAction = true;
+				break;
+			case 4:
+				result = (chosenCharacter.getMagic() / 9) + 3;
+				chosenCharacter.increaseMagic(result);
+				cout << "\n" << "Sua magia aumentou em " << result << "\n";
+				validAction = true;
+				break;
+			case 5:
+				result = (chosenCharacter.getDef() / 9) + 2;
+				chosenCharacter.increaseDef(result);
+				cout << "\n" << "Sua defesa aumentou em " << result << "\n";
+				validAction = true;
+				break;
+			case 6:
+				result = (chosenCharacter.getDodge() / 9) + 2;
+				chosenCharacter.increaseDodge(result);
+				cout << "\n" << "Sua esquiva aumentou em " << result << "\n";
+				validAction = true;
+				break;
+			case 7:
+				result = (chosenCharacter.getCrit() / 9) + 2;
+				chosenCharacter.increaseCrit(result);
+				cout << "\n" << "Sua chance de acerto crítico aumentou em " << result << "\n";
+				validAction = true;
+				break;
+			default:
+				cout << "\n" << "Opção inválida!";
+				cout << "\n" << "Escolha novamente..." << "\n";
+				system("pause");
+				break;
 		}
 	} while (!validAction);
 	system("pause");
