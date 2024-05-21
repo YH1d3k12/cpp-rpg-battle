@@ -18,7 +18,7 @@ using namespace std;
 
 class Monster {
 	public:
-	    // Construtor para inicializar os atributos.
+	    // Construtor da classe.
 	    Monster(
 			string name,
 			int maxHp, 
@@ -55,7 +55,7 @@ class Monster {
 		}
 
     	void takeDamage(int damage) {
-			damage -= def_;
+			damage -= def_ * 2;
 			if (damage < 0) {
 				damage = 0;
 			}
@@ -93,6 +93,7 @@ class Monster {
 
 class Hero : public Monster {
 	public:
+		// Construtor da classe.
 		Hero(
 			string name,
 			int maxHp, 
@@ -159,6 +160,7 @@ class Hero : public Monster {
     	void increaseMagic(int amount) { magic_ += amount; }
 
 	private:
+		// Atributos.
 		int maxMp_;
 		int currentMp_;
 		int magic_;
@@ -179,16 +181,23 @@ main() {
 	
 	// Lista de personagens.
 	vector<Hero> characters = {
-        Hero("Herói do Reino", 420, 420, 200, 200, 15, 15, 5, 10, 15, 15),
+		// Fácil.
+        Hero("Herói do Reino", 420, 420, 200, 200, 25, 25, 10, 10, 15, 15),
+		// Médio.
         Hero("Aventureiro", 120, 120, 20, 20, 7, 5, 2, 10, 5, 4),
+		// Difícil.
         Hero("Plebeu", 40, 40, 10, 10, 3, 2, 0, 5, 3, 1)
     };
 	Hero chosenCharacter = characters[0];
 
 	// Lista de monstros.
 	vector<Monster> monsters = {
-		Monster("Goblin", 27, 27, 3, 0, 7, 1),
-		Monster("Orc", 65, 65, 9, 1, 1, 3),
+		Monster("Goblin", 27, 27, 3, 0, 7, 3),
+		Monster("Ogro", 240, 240, 15, 2, 0, 3),
+		Monster("Esqueleto", 21, 21, 9, 1, 2, 5),
+		Monster("Orc", 65, 65, 8, 3, 5, 5),
+		Monster("Troll", 165, 165, 9, 5, 0, 3),
+		Monster("Lobo", 40, 40, 5, 0, 15, 3),
 		Monster("Dragão Vermelho", 650, 650, 20, 10, 5, 5)
 	};
 	Monster chosenMonster = monsters[0];
